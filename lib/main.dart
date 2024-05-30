@@ -5,17 +5,22 @@ import 'package:live_location_tracker/myMap.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 
-
 import 'package:location/location.dart' as loc;
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MaterialApp(home: MyApp()));
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -36,62 +41,74 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('live location tracker'),
+        title: const Text('live location tracker'),
       ),
       body: Column(
         children: [
           TextButton(
-              onPressed: () {
-                _getLocation();
-              },
-              child: Text('add my location')),
+            onPressed: () {
+              _getLocation();
+            },
+            child: const Text('add my location'),
+          ),
           TextButton(
-              onPressed: () {
-                _listenLocation();
-              },
-              child: Text('enable live location')),
+            onPressed: () {
+              _listenLocation();
+            },
+            child: const Text('enable live location'),
+          ),
           TextButton(
-              onPressed: () {
-                _stopListening();
-              },
-              child: Text('stop live location')),
+            onPressed: () {
+              _stopListening();
+            },
+            child: const Text('stop live location'),
+          ),
           Expanded(
-              child: StreamBuilder(
-                stream:
-                FirebaseFirestore.instance.collection('location').snapshots(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (!snapshot.hasData) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  return ListView.builder(
-                      itemCount: snapshot.data?.docs.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title:
-                          Text(snapshot.data!.docs[index]['name'].toString()),
-                          subtitle: Row(
-                            children: [
-                              Text(snapshot.data!.docs[index]['latitude']
-                                  .toString()),
-                              SizedBox(
-                                width: 20,
+            child: StreamBuilder(
+              stream:
+                  FirebaseFirestore.instance.collection('location').snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return ListView.builder(
+                  itemCount: snapshot.data?.docs.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(
+                        snapshot.data!.docs[index]['name'].toString(),
+                      ),
+                      subtitle: Row(
+                        children: [
+                          Text(
+                            snapshot.data!.docs[index]['latitude'].toString(),
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            snapshot.data!.docs[index]['longitude'].toString(),
+                          ),
+                        ],
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.directions),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => MyMap(
+                                snapshot.data!.docs[index].id,
                               ),
-                              Text(snapshot.data!.docs[index]['longitude']
-                                  .toString()),
-                            ],
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(Icons.directions),
-                            onPressed: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) =>
-                                      MyMap(snapshot.data!.docs[index].id)));
-                            },
-                          ),
-                        );
-                      });
-                },
-              )),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -99,10 +116,10 @@ class _MyAppState extends State<MyApp> {
 
   _getLocation() async {
     try {
-      final loc.LocationData _locationResult = await location.getLocation();
+      final loc.LocationData locationResult = await location.getLocation();
       await FirebaseFirestore.instance.collection('location').doc('user1').set({
-        'latitude': _locationResult.latitude,
-        'longitude': _locationResult.longitude,
+        'latitude': locationResult.latitude,
+        'longitude': locationResult.longitude,
         'name': 'john'
       }, SetOptions(merge: true));
     } catch (e) {

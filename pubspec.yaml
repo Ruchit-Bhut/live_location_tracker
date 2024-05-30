@@ -39,7 +39,7 @@ dependencies:
   location: ^6.0.2
   cloud_firestore: ^4.17.4
   permission_handler: ^11.3.1
-  google_maps_flutter:
+  google_maps_flutter: ^2.6.1
 
 dev_dependencies:
   flutter_test:
